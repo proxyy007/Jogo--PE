@@ -1,0 +1,96 @@
+======================================================================
+DOCUMENTAÇÃO DO SISTEMA: CRÔNICAS DE ARKÂNIA
+Projeto: Livro Jogo RPG (Baseado em "Caverna do Dragão")
+Linguagem: C
+Versão: 1.0
+======================================================================
+
+VISÃO GERAL
+----------------------------------------------------------------------
+O sistema é um jogo de RPG em formato de texto estruturado em páginas, 
+simulando a experiência de um "livro-jogo". O jogador avança na 
+história tomando decisões que afetam seus atributos (Moral e Coragem), 
+o que determinará o final da aventura. O sistema conta com combates 
+por turnos simulados com dados e um sistema de salvamento de progresso.
+
+
+BLOCO 1: ESTRUTURAS DE DADOS E CONFIGURAÇÕES GLOBAIS
+----------------------------------------------------------------------
+1.1 Bibliotecas Utilizadas
+* <stdio.h> e <stdlib.h>: Essenciais para entrada/saída de dados e 
+  controle do sistema (ex: system("cls") / system("clear")).
+* <string.h>: Utilizada para a manipulação dos textos das páginas e 
+  nomes de personagens com funções como strcpy.
+* <time.h>: Necessária para inicializar a semente de aleatoriedade 
+  (srand(time(NULL))) usada nos combates.
+* <locale.h>: Garante o suporte a caracteres especiais da língua 
+  portuguesa.
+
+1.2 Constantes de Pré-processamento
+O sistema utiliza constantes globais para facilitar a manutenção:
+* MAX_NOME 50: Tamanho máximo para o nome do jogador e inimigos.
+* MAX_DESC 500: Limite de caracteres para a descrição de cada página.
+* MAX_OPCAO 100: Limite de caracteres para as opções de escolha.
+* NUM_PAGINAS 30: Total de cenários mapeados no jogo.
+* VIDA_INICIAL 100: Pontos de vida base do jogador.
+* ARQUIVO_SAVE "save_arkania.dat": Nome do arquivo binário de save.
+
+1.3 Fichas e Estruturas (Structs)
+* Jogador: Armazena o estado atual do usuário. Contém um vetor de 
+  char para o nome, valores inteiros para moral, coragem, vida e 
+  vidaMax, além de registrar a paginaAtual para fins de save state.
+* Pagina: Molde para as cenas da história. Armazena a descricao em 
+  texto, matrizes para os textos das opções (opcaoTexto), para onde 
+  cada escolha direciona (opcaoDestino), e como afetam os atributos 
+  do herói (opcaoMoral e opcaoCoragem). O sinalizador temBatalha 
+  indica se um evento de combate deve ser ativado.
+
+
+BLOCO 2: LÓGICA DE JOGO E CONTROLE DE FLUXO
+----------------------------------------------------------------------
+2.1 Loop Principal e Navegação
+* O controle principal da navegação é mantido na função jogar(), 
+  que opera sob um laço while (continuar == 1).
+* A página é validada para evitar falhas de segmentação.
+* Após receber o input (opções numéricas de 1 a 4), o sistema reajusta 
+  os atributos do jogador somando/subtraindo os valores estipulados.
+* Um sistema de limitação (clamp) impede que Moral e Coragem excedam 
+  o limite de 10 ou caiam abaixo de -10.
+
+2.2 Motor de Combate
+A função combate(int dificuldade) altera de um sistema narrativo para 
+um sistema de batalha em turnos.
+* Status Dinâmicos: A saúde, o ataque e a defesa do inimigo escalonam 
+  através de multiplicadores atrelados à variável dificuldade.
+* Aleatoriedade: Utiliza um simulador de "rolagem de D20" 
+  ((rand() % 20) + 1) tanto para os ataques do jogador quanto inimigo.
+* Cálculo de Dano: É baseado na fórmula de rolagem somada a um fator 
+  base, subtraindo a defesa do alvo.
+* Segurança Matemática: Condicionais (if (dano < 0) dano = 0;) 
+  impedem que rolagens baixas contra defesas altas resultem em dano 
+  negativo (curando o adversário).
+
+
+BLOCO 3: GERENCIAMENTO DE DADOS E MEMÓRIA
+----------------------------------------------------------------------
+3.1 Construção Estática do Livro
+A função inicializarPaginas() atua como o preenchimento do banco de 
+dados na memória RAM.
+* Ela percorre todas as páginas estabelecendo valores neutros e 
+  limpando resíduos de memória através da inserção do caractere nulo 
+  ('\0') na primeira posição dos vetores de texto.
+* Posteriormente, o código constrói os cenários "hardcoded" utilizando 
+  repetidamente a função strcpy para popular o vetor das páginas e 
+  definir os caminhos para o controle da narrativa.
+
+3.2 Persistência de Dados (Save/Load)
+O jogo possui funcionalidade de recuperar o progresso utilizando 
+arquivos locais, mitigando a perda do estado contido na RAM.
+* Salvar (salvarJogo): Instancia um ponteiro FILE *arq para abrir ou 
+  criar um arquivo no modo "wb" (escrita de arquivo binário). A função 
+  copia integralmente a estrutura global jogador via comando fwrite 
+  para o disco rígido de forma contígua.
+* Carregar (carregarJogo): Abre o arquivo em modo "rb" (leitura de 
+  arquivo binário). Caso seja bem sucedido, o programa lê o disco com 
+  fread e preenche novamente a variável global jogador, restaurando 
+  nome, atributos, vida e localização exata na narrativa.
