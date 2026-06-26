@@ -1,0 +1,41 @@
+========================================================================
+DOCUMENTACAO TECNICA: CRONICAS DE ARKANIA
+Disciplina: Programacao Estruturada
+Equipe: Artur de Paula, Matheus Linhares, Daniel Alves
+========================================================================
+
+BLOCO 1: ESTRUTURAS DE DADOS E DEFINICOES GLOBAIS
+Este bloco explica como os dados do jogo foram modelados na memoria utilizando as ferramentas da linguagem C.
+
+- Uso de Macros (Constantes): O codigo utiliza diretivas #define para estabelecer limites claros e evitar "numeros magicos", como o tamanho maximo de strings (MAX_NOME, MAX_DESC) e o numero total de paginas (NUM_PAGINAS definido como 30). O nome do arquivo de persistencia de dados tambem e definido por uma constante (ARQUIVO_SAVE).
+
+- Modelagem do Jogador (struct Jogador): O estado atual do usuario e armazenado em uma estrutura contendo seu nome, atributos morais (moral, coragem), status de combate (vida, vidaMax) e o seu progresso na historia representado pela variavel paginaAtual.
+
+- Modelagem da Historia (struct Pagina): Cada no da historia e tratado como um objeto Pagina. Esta estrutura guarda o texto narrativo, matrizes contendo o texto das opcoes (opcaoTexto) e para onde cada opcao leva (opcaoDestino), alem dos modificadores de atributos e um sinalizador inteiro (temBatalha) que indica se havera combate naquela pagina.
+
+- Instanciacao Global: Foi declarado um vetor global paginas[NUM_PAGINAS] e uma variavel jogador, permitindo que o estado da aplicacao seja acessado e modificado por todas as funcoes do escopo.
+
+------------------------------------------------------------------------
+
+BLOCO 2: LOGICA PRINCIPAL, MOTOR DE REGRAS E COMBATE
+Este bloco detalha o "Game Loop" (laco principal) e os sistemas matematicos que governam o jogo.
+
+- Maquina de Estados (jogar): A funcao jogar funciona como o motor do jogo, mantendo o jogador em um laco while ate o fim da aventura. Ela le a paginaAtual, exibe a descricao e as opcoes correspondentes. Ao processar a entrada, atualiza a pagina destino e altera os status de moral e coragem do jogador (com limites de -10 a +10).
+
+- Sistema de Combate (combate): Se a variavel temBatalha for igual a 1, a rotina de combate e acionada. O combate utiliza um sistema de turnos com geracao de numeros pseudoaleatorios (rand() % 20 + 1) para simular a rolagem de dados (como em RPGs de mesa) tanto para o ataque do jogador quanto do inimigo. O dano e calculado subtraindo a defesa do atacado do valor rolado somado a modificadores.
+
+- Calculo de Finais (finalJogo): A funcao determina o desfecho da aventura nao apenas pela sobrevivencia, mas por um sistema de alinhamento. Quando o jogador alcanca as paginas finais, o codigo soma as variaveis moral e coragem. Se a soma for superior a 6, engatilha o "Final Bom"; se inferior a -6, o "Final Ruim"; e resultados intermediarios geram o "Final Medio".
+
+------------------------------------------------------------------------
+
+BLOCO 3: PERSISTENCIA DE DADOS E CONTROLE DE INTERFACE
+Este bloco aborda como o programa gerencia os arquivos do sistema operacional e manipula a tela do terminal.
+
+- Manipulacao de Arquivos Binarios (Save/Load): A funcao salvarJogo() abre o arquivo "save_arkania.dat" em modo de escrita binaria ("wb") e utiliza fwrite para gravar a estrutura inteira do Jogador no disco. O processo reverso, carregarJogo(), utiliza fread no modo "rb", permitindo restaurar o estado exato da sessao anterior.
+
+- Inicializacao do Banco de Dados: A funcao inicializarPaginas() atua como a carga do banco de dados na memoria RAM. Ela preenche todas as instancias do vetor global paginas com os textos formatados (strcpy), as destinacoes e as pontuacoes de cada escolha da narrativa hardcoded.
+
+- Gerenciamento de I/O (Entrada e Saida): O codigo possui tratamento para garantir que a interface fique limpa.
+  * Portabilidade: A funcao limparTela() faz uma checagem em tempo de compilacao com #ifdef _WIN32 para disparar system("cls") no Windows ou system("clear") no Linux/macOS.
+  * Limpeza de Buffer: Para evitar bugs de leitura quando o usuario pressiona ENTER, foi implementada a funcao limparBuffer(), que varre e descarta caracteres remanescentes usando getchar().
+  * Localizacao: Na funcao main(), setlocale(LC_ALL, "Portuguese") e chamada imediatamente para assegurar que a acentuacao e a codificacao de caracteres funcionem corretamente no terminal do Windows.
