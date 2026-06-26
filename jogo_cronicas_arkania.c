@@ -13,9 +13,7 @@
  *  COMPILACAO: gcc jogo_cronicas_arkania.c -o jogo.exe
  *  EXECUCAO:   jogo.exe
  *
- *  30 paginas, 4 escolhas cada, 3 finais (bom, medio, ruim)
- *  Sistema de alinhamento: moral e coragem determinam o final
- *  Sem alocacao dinamica, apenas conceitos basicos de C.
+
  * ============================================================================
  */
 
