@@ -305,7 +305,7 @@ void creditos() {
     printf("========================================\n\n");
     printf("CRONICAS DE ARKANIA: A JORNADA DOS HEROIS\n");
     printf("Baseado na serie Caverna do Dragao\n\n");
-    printf("DESENVOLVEDORES:\n- Artur de Paula\n- [Colega 1]\n- [Colega 2]\n- [Colega 3]\n\n");
+    printf("DESENVOLVEDORES:\n- Artur de Paula\n- Daniel Alves\n- Matheus Linhares\n\n");
     printf("Programacao Estruturada - 2026.1\n\n");
     pausar();
 }
