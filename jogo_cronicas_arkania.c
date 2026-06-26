@@ -6,9 +6,9 @@
  *
  *  EQUIPE:
  *    - Artur de Paula
- *    - [Colega 1]
- *    - [Colega 2]
- *    - [Colega 3]
+ *    - Matheus Linhares
+ *    - Daniel Alvez
+ *    
  *
  *  COMPILACAO: gcc jogo_cronicas_arkania.c -o jogo.exe
  *  EXECUCAO:   jogo.exe
